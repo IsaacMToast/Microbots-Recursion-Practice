@@ -55,23 +55,25 @@ def find_options(start_row:int, start_col:int) -> set[tuple[int]]:
        
        
 least_steps = float('inf')
-
-
-def find_optimal_path(start_row:int, start_col:int, end_row:int, end_col:int, steps:int=0, visited:set=set()):
+shortest_path = []
+def find_optimal_path(start_row:int, start_col:int, end_row:int, end_col:int, steps:int=0, visited:list=[], path:list=[]):
     global least_steps
+    global shortest_path
+    path.append((start_row, start_col))
     if (start_row, start_col) == (end_row, end_col):
         least_steps = min(steps, least_steps)
+        shortest_path = path
         return
             
-    visited.add((start_row, start_col))
+    visited.append((start_row, start_col))
     available_moves = find_options(start_row, start_col).difference(visited)
     
     for coord in available_moves:
-        find_optimal_path(coord[0], coord[1], end_row, end_col, steps+1, visited.copy())
-       
+        find_optimal_path(coord[0], coord[1], end_row, end_col, steps+1, visited.copy(), path.copy()) 
        
 def main():
     os.system('cls')
+   
    
     rows = len(BOARD)
     cols = len(BOARD[0])  
@@ -98,7 +100,10 @@ def main():
             temp_list.append(find_options(row, col))
         movement_board.append(temp_list)
 
-    find_optimal_path(start_row, start_col, end_row, end_col)
+    visited = []
+    find_optimal_path(start_row, start_col, end_row, end_col, 0, visited)
+    print(visited)
+    print(shortest_path)
     print(f"Optimal Steps: {least_steps}")
 
 
