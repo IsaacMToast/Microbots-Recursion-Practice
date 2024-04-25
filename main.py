@@ -61,8 +61,9 @@ def find_optimal_path(start_row:int, start_col:int, end_row:int, end_col:int, st
     global shortest_path
     path.append((start_row, start_col))
     if (start_row, start_col) == (end_row, end_col):
-        least_steps = min(steps, least_steps)
-        shortest_path = path
+        if steps < least_steps:
+            least_steps = steps
+            shortest_path = path
         return
             
     visited.append((start_row, start_col))
@@ -75,58 +76,64 @@ def random_row():
     return random.randint(0, BOARD_ROWS-1)
 
 def random_col():
-    return random.randint(0, BOARD_COLS)-1
+    return random.randint(0, BOARD_COLS-1)
 
-def get_row(message:bool = True) -> None:
+class 
+
+def check_coord(coord:str):
+    comma_count = 0
+    allowed_nums = ',0123456789'
+    for char in coord:
+        if char not in allowed_nums:
+            raise 
+        if char == ',':
+            
+
+
+def get_row_col(message:bool = True) -> tuple[int]:
     if message:
-        print(f"Please choose a row (1-{BOARD_ROWS}).")
+        print(f"Please enter coordinates (row,col).")
     while True:
-        try:
-            response = int(input('>: '))
+            response = input('>: ')
+            try:
+                row = int(response[0])
+                col = int(response[1])
+            except ValueError:
+                print(Fore.RED + "Invalid Input. Please enter an integer." + Fore.RESET)
+            
             if response < 1 or response > BOARD_ROWS:
-                print(Fore.RED + f"Invalid Input. Please choose a valid row (1-{BOARD_ROWS})." + Fore.RESET)
+                print(Fore.RED + f"Invalid Input. Please choose a valid within the bounds of a ({BOARD_ROWS}/{BOARD_ROWS})." + Fore.RESET)
             else:
                 break
-        except ValueError:
-            print(Fore.RED + "Invalid Input. Please enter an integer." + Fore.RESET)
-    return response
-
-def get_col(message:bool = True) -> None:
-    if message:
-        print(f"Please choose a column (1-{BOARD_COLS}).")
-    while True:
-        try:
-            response = int(input('>: '))
-            if response < 1 or response > BOARD_COLS:
-                print(Fore.RED + f"Invalid Input. Please choose a valid column (1-{BOARD_COLS})." + Fore.RESET)
-            else:
-                break
-        except ValueError:
-            print(Fore.RED + "Invalid Input. Please enter an integer." + Fore.RESET)
-    return response
+    return (row-1, col-1)
        
 def main():
     os.system('cls')
     print(Fore.RESET, end='')
+   
+    print_2d_list(BOARD, 1)
    
     print("What would you like to do?\n   [1.] Manually input start and end locations.\n   [2.] Randomly choose start and end locations.")
     while True:
         try:
             response = int(input('>: '))
             if response not in (1,2):
-                print(Fore.RED + "Invalid Input. Please choose either 1 or 2.")
+                print(Fore.RED + "Invalid Input. Please choose either 1 or 2." + Fore.RESET)
             else:
                 break
         except ValueError:
-            print(Fore.RED + "Invalid Input. Please enter an integer.")
+            print(Fore.RED + "Invalid Input. Please enter an integer." + Fore.RESET)
             
     if response == 1:
         print("CHOOSING START LOCATION.")
-        start_row = get_row()
-        start_col = get_col()
+        start = get_row_col()
+        start_row = start[0]
+        start_col = start[1]
         
-        start_row = get_row()
-        start_col = get_col()
+        print("CHOOSING END LOCATION.")
+        end = get_row_col()
+        end_row = end[0]
+        end_col = end[1]
         
     elif response == 2:
         start_row = random_row()
@@ -141,9 +148,9 @@ def main():
     start_cell = BOARD[start_row][start_col]
     end_cell = BOARD[end_row][end_col]
        
+    os.system('cls')
     print_2d_list(BOARD, 1)
-    print("Start Point: " + f'{start_cell}')
-    print("End Point: " + f'{end_cell}')
+    print(f'Going from {start_cell} to {end_cell}.')
    
     for row in range(BOARD_ROWS):
         temp_list = []
@@ -151,11 +158,11 @@ def main():
             temp_list.append(find_options(row, col))
         movement_board.append(temp_list)
 
-    visited = []
-    find_optimal_path(start_row, start_col, end_row, end_col, 0, visited)
-    print(visited)
-    print(shortest_path)
-    print(f"Optimal Steps: {least_steps}")
+    find_optimal_path(start_row, start_col, end_row, end_col, 0)
+    for point in shortest_path:
+        print(BOARD[point[0]][point[1]], end=' ')
+    print()
+    print(f"Steps: {least_steps}")
 
 
 if __name__ == '__main__':
