@@ -71,21 +71,72 @@ def find_optimal_path(start_row:int, start_col:int, end_row:int, end_col:int, st
     for coord in available_moves:
         find_optimal_path(coord[0], coord[1], end_row, end_col, steps+1, visited.copy(), path.copy()) 
        
+def random_row():
+    return random.randint(0, BOARD_ROWS-1)
+
+def random_col():
+    return random.randint(0, BOARD_COLS)-1
+
+def get_row(message:bool = True) -> None:
+    if message:
+        print(f"Please choose a row (1-{BOARD_ROWS}).")
+    while True:
+        try:
+            response = int(input('>: '))
+            if response < 1 or response > BOARD_ROWS:
+                print(Fore.RED + f"Invalid Input. Please choose a valid row (1-{BOARD_ROWS})." + Fore.RESET)
+            else:
+                break
+        except ValueError:
+            print(Fore.RED + "Invalid Input. Please enter an integer." + Fore.RESET)
+    return response
+
+def get_col(message:bool = True) -> None:
+    if message:
+        print(f"Please choose a column (1-{BOARD_COLS}).")
+    while True:
+        try:
+            response = int(input('>: '))
+            if response < 1 or response > BOARD_COLS:
+                print(Fore.RED + f"Invalid Input. Please choose a valid column (1-{BOARD_COLS})." + Fore.RESET)
+            else:
+                break
+        except ValueError:
+            print(Fore.RED + "Invalid Input. Please enter an integer." + Fore.RESET)
+    return response
+       
 def main():
     os.system('cls')
+    print(Fore.RESET, end='')
    
-   
-    rows = len(BOARD)
-    cols = len(BOARD[0])  
-   
-    start_row = random.randint(0, rows - 1)
-    start_col = random.randint(0, cols - 1)
-    end_row = start_row
-    end_col = start_col
+    print("What would you like to do?\n   [1.] Manually input start and end locations.\n   [2.] Randomly choose start and end locations.")
+    while True:
+        try:
+            response = int(input('>: '))
+            if response not in (1,2):
+                print(Fore.RED + "Invalid Input. Please choose either 1 or 2.")
+            else:
+                break
+        except ValueError:
+            print(Fore.RED + "Invalid Input. Please enter an integer.")
+            
+    if response == 1:
+        print("CHOOSING START LOCATION.")
+        start_row = get_row()
+        start_col = get_col()
+        
+        start_row = get_row()
+        start_col = get_col()
+        
+    elif response == 2:
+        start_row = random_row()
+        start_col = random_col()
+        end_row = start_row
+        end_col = start_col
  
-    while (start_row, start_col) == (end_row, end_col):
-        end_row = random.randint(0, rows - 1)
-        end_col = random.randint(0, cols - 1)
+        while (start_row, start_col) == (end_row, end_col):
+            end_row = random_row()
+            end_col = random_col()
        
     start_cell = BOARD[start_row][start_col]
     end_cell = BOARD[end_row][end_col]
