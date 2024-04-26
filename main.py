@@ -78,15 +78,31 @@ def random_row():
 def random_col():
     return random.randint(0, BOARD_COLS-1)
 
-class 
+class CoordinateFormatError(Exception):
+    pass
 
-def check_coord(coord:str):
+def parse_coord(coord_string:str) -> tuple[int]:
     comma_count = 0
-    allowed_nums = ',0123456789'
-    for char in coord:
-        if char not in allowed_nums:
-            raise 
+    if any(char not in ',0123456789-' for char in coord_string ):
+        raise CoordinateFormatError("Unallowed character.")
+    
+    for char in coord_string:
         if char == ',':
+            comma_count += 1
+        if comma_count > 1:
+            raise CoordinateFormatError('Too many commas!')
+        
+    try:
+        row = int(coord_string[0:coord_string.index(',')])
+        col = int(coord_string[coord_string.index(',')+1:])
+    except ValueError:
+        raise CoordinateFormatError('Invalid row or column number.')
+    
+    if min(row, col) < 0:
+        raise CoordinateFormatError('Negative row or column.')
+    
+    return row-1, col-1
+        
             
 
 
@@ -96,21 +112,20 @@ def get_row_col(message:bool = True) -> tuple[int]:
     while True:
             response = input('>: ')
             try:
-                row = int(response[0])
-                col = int(response[1])
-            except ValueError:
-                print(Fore.RED + "Invalid Input. Please enter an integer." + Fore.RESET)
+                coords = parse_coord(response.strip())
+                return coords
+            except CoordinateFormatError as e:
+                error_message = str(e)
+                print(Fore.RED + f"ERROR: " + error_message + Fore.RESET)
             
-            if response < 1 or response > BOARD_ROWS:
-                print(Fore.RED + f"Invalid Input. Please choose a valid within the bounds of a ({BOARD_ROWS}/{BOARD_ROWS})." + Fore.RESET)
-            else:
-                break
-    return (row-1, col-1)
+    
        
-def main():
+def clear():
     os.system('cls')
     print(Fore.RESET, end='')
-   
+       
+def main():
+    clear()
     print_2d_list(BOARD, 1)
    
     print("What would you like to do?\n   [1.] Manually input start and end locations.\n   [2.] Randomly choose start and end locations.")
@@ -148,7 +163,7 @@ def main():
     start_cell = BOARD[start_row][start_col]
     end_cell = BOARD[end_row][end_col]
        
-    os.system('cls')
+    clear()
     print_2d_list(BOARD, 1)
     print(f'Going from {start_cell} to {end_cell}.')
    
