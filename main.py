@@ -29,54 +29,77 @@ def print_2d_list(l: list[list], spacing=1) -> None:
             print(str(col), end=' ' * spacing)
         print()
    
+class Point:
+    def __init__(self, row: int, col: int) -> None:
+        self._row = row
+        self._col = col
+
+    @property
+    def row(self):
+        return self._row
+
+    @property
+    def col(self):
+        return self._col
+
+    def __eq__(self, other) -> bool:
+        if not isinstance(other, Point):
+            return NotImplemented
+        return self.row == other.row and self.col == other.col
+
+    def __hash__(self) -> int:
+        return hash((self.row, self.col))
+
+class Path:
+    def __init__(self, start_point:Point, end_point:Point) -> None:
+        self.start_point = start_point
+        self.end_point = end_point
    
-def accessible(row1:int, col1:int, row2:int, col2:int) -> bool:
-    cell1 = BOARD[row1][col1]
-    cell2 = BOARD[row2][col2]
+def accessible(point1:'Point', point2:'Point') -> bool:
+    cell1 = BOARD[point1.row][point1.col]
+    cell2 = BOARD[point2.row][point2.col]
     return cell1.color == cell2.color or cell1.val == cell2.val
    
    
-def find_options(start_row:int, start_col:int) -> set[tuple[int]]:
+def find_options(point:Point) -> set[Point]:
     accessible_cells = set()
     
     for col in range(BOARD_COLS):
-        if col == start_col:
+        new_point = Point(point.row, col)
+        if col == point.col:
             continue
-        if accessible(start_row, start_col, start_row, col):
-            accessible_cells.add((start_row, col))
+        if accessible(point, new_point):
+            accessible_cells.add(new_point)
    
     for row in range(BOARD_ROWS):
-        if row == start_row:
+        new_point = Point(row, point.col)
+        if row == point.row:
             continue
-        if accessible(start_row, start_col, row, start_col):
-            accessible_cells.add((row, start_col))
+        if accessible(point, new_point):
+            accessible_cells.add(new_point)
             
     return accessible_cells
        
        
 least_steps = float('inf')
 shortest_path = []
-def find_optimal_path(start_row:int, start_col:int, end_row:int, end_col:int, steps:int=0, visited:list=[], path:list=[]):
+def find_optimal_path(start_point:Point, end_point:Point, steps:int=0, visited:list=[], path:list=[]):
     global least_steps
     global shortest_path
-    path.append((start_row, start_col))
-    if (start_row, start_col) == (end_row, end_col):
+    path.append(start_point)
+    if start_point == end_point:
         if steps < least_steps:
             least_steps = steps
             shortest_path = path
         return
             
-    visited.append((start_row, start_col))
-    available_moves = find_options(start_row, start_col).difference(visited)
+    visited.append(start_point)
+    available_moves = find_options(start_point).difference(visited)
     
     for coord in available_moves:
-        find_optimal_path(coord[0], coord[1], end_row, end_col, steps+1, visited.copy(), path.copy()) 
+        find_optimal_path(coord, end_point, steps+1, visited.copy(), path.copy()) 
        
-def random_row():
-    return random.randint(0, BOARD_ROWS-1)
 
-def random_col():
-    return random.randint(0, BOARD_COLS-1)
 
 class CoordinateFormatError(Exception):
     pass
@@ -105,64 +128,59 @@ def parse_coord(coord_string:str) -> tuple[int]:
         
             
 
+def random_row():
+    return random.randint(0, BOARD_ROWS-1)
 
-def get_row_col(message:bool = True) -> tuple[int]:
-    if message:
-        print(f"Please enter coordinates (row,col).")
-    while True:
-            response = input('>: ')
-            try:
-                coords = parse_coord(response.strip())
-                return coords
-            except CoordinateFormatError as e:
-                error_message = str(e)
-                print(Fore.RED + f"ERROR: " + error_message + Fore.RESET)
-            
-    
+def random_col():
+    return random.randint(0, BOARD_COLS-1)
+
+def random_point():
+    row = random_row()
+    col = random_col()
+    return Point(row, col)
        
 def clear():
     os.system('cls')
     print(Fore.RESET, end='')
-       
-def main():
-    clear()
-    print_2d_list(BOARD, 1)
-   
-    print("What would you like to do?\n   [1.] Manually input start and end locations.\n   [2.] Randomly choose start and end locations.")
+    
+     
+def menu():
+    print("Micro bots! Enter p to play, s to solve, or q to quit.")
+    choice = ''
     while True:
-        try:
-            response = int(input('>: '))
-            if response not in (1,2):
-                print(Fore.RED + "Invalid Input. Please choose either 1 or 2." + Fore.RESET)
-            else:
-                break
-        except ValueError:
-            print(Fore.RED + "Invalid Input. Please enter an integer." + Fore.RESET)
+        choice = input('>: ')
+        if choice not in ['p','s','q']:
+            print(Fore.RED + 'ERROR: Invalid choice.' + Fore.RESET)
+        else:
+            break
+    if choice == "p":
+        pass
+    elif choice == "s":
+        solve()
+    elif choice == "q":
+        quit()
+
+
+
+def random_path() -> Path:
+    start_point = random_point()
+    end_point = start_point
+
+    while (start_point) == (end_point):
+        end_point = random_point()
+        
+    return Path(start_point, end_point)
+
+def play():
+    path = random_path()
+    start_cell = BOARD[path.start_point.row][path.start_point.col]
+    end_cell = BOARD[path.end_point.row][path.end_point.col]
+
+def solve():
+    path = random_path()
+    start_cell = BOARD[path.start_point.row][path.start_point.col]
+    end_cell = BOARD[path.end_point.row][path.end_point.col]
             
-    if response == 1:
-        print("CHOOSING START LOCATION.")
-        start = get_row_col()
-        start_row = start[0]
-        start_col = start[1]
-        
-        print("CHOOSING END LOCATION.")
-        end = get_row_col()
-        end_row = end[0]
-        end_col = end[1]
-        
-    elif response == 2:
-        start_row = random_row()
-        start_col = random_col()
-        end_row = start_row
-        end_col = start_col
- 
-        while (start_row, start_col) == (end_row, end_col):
-            end_row = random_row()
-            end_col = random_col()
-       
-    start_cell = BOARD[start_row][start_col]
-    end_cell = BOARD[end_row][end_col]
-       
     clear()
     print_2d_list(BOARD, 1)
     print(f'Going from {start_cell} to {end_cell}.')
@@ -170,14 +188,23 @@ def main():
     for row in range(BOARD_ROWS):
         temp_list = []
         for col in range(BOARD_COLS):
-            temp_list.append(find_options(row, col))
+            temp_list.append(find_options(Point(row, col)))
         movement_board.append(temp_list)
 
-    find_optimal_path(start_row, start_col, end_row, end_col, 0)
+    find_optimal_path(path.start_point, path.end_point, 0)
     for point in shortest_path:
-        print(BOARD[point[0]][point[1]], end=' ')
+        print(BOARD[point.row][point.col], end=' ')
     print()
     print(f"Steps: {least_steps}")
+    print('Press enter to continue . . . ')
+    input()
+       
+def main():
+    menu()  
+    clear()
+       
+       
+    
 
 
 if __name__ == '__main__':
