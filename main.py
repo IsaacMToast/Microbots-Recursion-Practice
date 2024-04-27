@@ -342,6 +342,7 @@ def play():
 
 
 def solve():
+    clear()
     print_board()
     print()
     print("Enter the start and end spaces seperated by a comma in C# format where C is the first letter of the color, and # is the number.\nEg. Y5,G4")
@@ -403,6 +404,7 @@ def menu():
     elif choice == "s":
         solve()
     elif choice == "q":
+        clear()
         quit()
 
 
