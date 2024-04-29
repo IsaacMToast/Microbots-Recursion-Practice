@@ -222,7 +222,7 @@ def parse_path(path:str) -> list[Point]:
 def validate_path_moves(path:list[Point]) -> bool:
     if len(path) <= 1:
         return False
-    for i in range(len(path)-1):
+    for i in range(len(path)):
         if not accessible(path[i], path[i+1]):
             return False
     return True
@@ -353,7 +353,6 @@ def solve():
         except CoordinateFormatError as e:
             print(Fore.RED + str(e) + Fore.RESET)
             
-    print(path)
     start_cell = BOARD[path.start.row][path.start.col]
     end_cell = BOARD[path.end.row][path.end.col]
             
@@ -373,7 +372,7 @@ def solve():
 def load_codes():
     for row in range(BOARD_ROWS):
         for col in range(BOARD_COLS):
-            BOARD_CODES[f'{str(COLOR_CODES['colors'][BOARD[row][col].color])}{str(BOARD[row][col].val)}'] = Point(row,col)
+            BOARD_CODES[f"{str(COLOR_CODES['colors'][BOARD[row][col].color])}{str(BOARD[row][col].val)}"] = Point(row,col)
        
        
        
