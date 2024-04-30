@@ -122,18 +122,19 @@ least_steps = float('inf')
 def find_optimal_path(start_point:Point, end_point:Point, steps:int=0, visited:list=[], path:list=[]):
     global SHORTEST_PATH
     global least_steps
-    path.append(start_point)
+    
     if start_point == end_point:
         if steps < least_steps:
             least_steps = steps
-            SHORTEST_PATH = path
+            SHORTEST_PATH = path + [start_point]  # Update SHORTEST_PATH with the current path
         return
-            
+
     visited.append(start_point)
     available_moves = find_options(start_point).difference(visited)
-    
+
     for coord in available_moves:
-        find_optimal_path(coord, end_point, steps+1, visited.copy(), path.copy()) 
+        new_path = path + [start_point]
+        find_optimal_path(coord, end_point, steps+1, visited.copy(), new_path.copy())
        
        
 
@@ -222,7 +223,7 @@ def parse_path(path:str) -> list[Point]:
 def validate_path_moves(path:list[Point]) -> bool:
     if len(path) <= 1:
         return False
-    for i in range(len(path)):
+    for i in range(len(path)-1):
         if not accessible(path[i], path[i+1]):
             return False
     return True
